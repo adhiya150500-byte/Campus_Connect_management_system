@@ -1,0 +1,565 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>CampusConnect</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+/* Layout: sticky indigo navbar, indigo hero with attendance preview card, light content sections; app views use a tab bar + card grid. Palette and fonts come from the project's own style.css. */
+:root{
+  --indigo:#1f2a5c; --indigo-dark:#151d44; --amber:#f5b83d; --amber-hi:#ffc95c; --on-amber:#151d44;
+  --paper:#f5f6fb; --card:#ffffff; --ink:#232842; --muted:#5b6180; --line:#dfe2ef;
+  --green:#1e9e6a; --red:#c9373f; --soft:#eceefa; --hero:#1f2a5c;
+  --font-head:"Bricolage Grotesque","Segoe UI",Arial,sans-serif;
+  --font-body:"Source Sans 3","Segoe UI",Arial,sans-serif;
+  --radius:14px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#0f1430; --card:#182049; --ink:#e8eaf6; --muted:#a4aacb; --line:#2b3566; --soft:#202a5a;
+  --green:#3ccf94; --red:#ff7b83; --hero:#151d44; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#0f1430; --card:#182049; --ink:#e8eaf6; --muted:#a4aacb; --line:#2b3566; --soft:#202a5a;
+  --green:#3ccf94; --red:#ff7b83; --hero:#151d44; color-scheme:dark}
+
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--font-body);font-size:1.05rem;line-height:1.6}
+h1,h2,h3{font-family:var(--font-head);line-height:1.15;margin:0 0 .5rem;text-wrap:balance}
+p{margin:0 0 1rem;max-width:62ch}
+ul{margin:0;padding:0;list-style:none}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--amber);outline-offset:3px}
+.container{width:min(1100px,100% - 2rem);margin-inline:auto}
+
+/* navbar */
+.navbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:10;background:var(--indigo-dark);color:#fff}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;gap:1rem;min-height:64px;flex-wrap:wrap}
+.logo{font-family:var(--font-head);font-weight:800;font-size:1.4rem;color:#fff;background:none;border:0;cursor:pointer;padding:0}
+.logo span{color:var(--amber)}
+.nav-links{display:flex;align-items:center;gap:1.2rem;flex-wrap:wrap}
+.nav-links a,.nav-links button.lnk{color:#fff;background:none;border:0;cursor:pointer;font-weight:600;opacity:.9;text-decoration:none;padding:.25rem 0}
+.nav-links a:hover,.nav-links button.lnk:hover{opacity:1;text-decoration:underline;text-underline-offset:6px}
+.nav-login{background:var(--amber)!important;color:var(--on-amber)!important;padding:.4rem 1.1rem!important;border-radius:999px;opacity:1!important}
+.who{font-size:.95rem;opacity:.85}
+.theme-btn{background:none;border:1px solid rgba(255,255,255,.35);color:#fff;border-radius:999px;padding:.25rem .8rem;cursor:pointer;font-size:.9rem}
+
+/* buttons */
+.btn{display:inline-block;font-weight:700;padding:.8rem 1.6rem;border-radius:999px;border:2px solid transparent;cursor:pointer;transition:transform .15s ease,background .15s ease;text-decoration:none}
+.btn:hover{transform:translateY(-2px)}
+.btn-primary{background:var(--amber);color:var(--on-amber)}
+.btn-primary:hover{background:var(--amber-hi)}
+.btn-outline{border-color:#fff;color:#fff;background:none}
+.btn-outline:hover{background:#fff;color:var(--indigo)}
+.btn-small{padding:.4rem 1rem;font-size:.92rem}
+.btn-ghost{border-color:var(--line);background:none;color:var(--ink)}
+.btn-ghost:hover{background:var(--soft)}
+.btn-danger{border-color:var(--red);color:var(--red);background:none}
+.btn-block{width:100%}
+
+/* hero */
+.hero{background:var(--hero);color:#fff;padding:4rem 0 5rem}
+.hero-inner{display:grid;grid-template-columns:1.2fr 1fr;gap:3rem;align-items:center}
+.hero-inner>*{min-width:0}
+.hero h1{font-size:clamp(2.1rem,5vw,3.5rem);font-weight:800}
+.tagline{font-family:var(--font-head);font-size:1.35rem;color:var(--amber);font-weight:600;margin-bottom:.6rem}
+.sub{font-size:1.15rem;opacity:.9}
+.hero-buttons{display:flex;flex-wrap:wrap;gap:1rem;margin-top:1.6rem}
+.preview{background:var(--card);color:var(--ink);border-radius:var(--radius);padding:1.5rem;box-shadow:0 18px 40px rgba(0,0,0,.25);transform:rotate(1.5deg)}
+.preview h2{font-size:1.1rem;margin-bottom:1rem}
+.pinned{margin:1.2rem 0 0;font-size:.95rem;color:var(--muted)}
+
+/* bars */
+.bars li+li{margin-top:1rem}
+.bar-label{display:flex;justify-content:space-between;gap:1rem;font-size:.95rem;margin-bottom:.3rem}
+.bar{position:relative;height:10px;background:var(--line);border-radius:99px;overflow:visible}
+.bar i{display:block;height:100%;border-radius:99px;background:var(--green)}
+.bar i.low{background:var(--amber)}
+.bar i.bad{background:var(--red)}
+.bar::after{content:"";position:absolute;left:75%;top:-3px;bottom:-3px;width:2px;background:var(--ink);opacity:.45}
+.bar-note{font-size:.82rem;color:var(--muted);margin-top:.2rem}
+
+/* sections */
+.section-title{font-size:clamp(1.6rem,3vw,2.1rem);margin-bottom:1.5rem}
+.features{padding:4rem 0}
+.feature-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.2rem}
+.feature{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:1.4rem;min-width:0}
+.feature h3{font-size:1.2rem}
+.feature p{color:var(--muted);margin:0}
+.glyph{display:grid;place-items:center;width:44px;height:44px;border-radius:12px;background:var(--soft);color:var(--indigo);font-family:var(--font-head);font-weight:800;margin-bottom:.8rem}
+:root[data-theme="dark"] .glyph{color:var(--amber)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .glyph{color:var(--amber)}}
+.about{padding:1rem 0 4rem}
+.about-inner{display:grid;grid-template-columns:1fr 1fr;gap:2.5rem}
+.about-inner>*{min-width:0}
+.roles li{padding:.9rem 0;border-top:1px solid var(--line)}
+.roles li:last-child{border-bottom:1px solid var(--line)}
+.footer{background:var(--indigo-dark);color:#cfd3ee;padding:1.4rem 0;font-size:.95rem}
+.footer-inner{display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+
+/* login */
+.login-wrap{display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:center;padding-block:3.5rem}
+.login-wrap>*{min-width:0}
+.side-list li{padding:.35rem 0;color:var(--muted)}
+.login-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:1.6rem;box-shadow:0 12px 30px rgba(21,29,68,.12)}
+.role-tabs{display:flex;gap:.4rem;background:var(--soft);padding:.3rem;border-radius:999px;margin-bottom:1.2rem}
+.tab{flex:1;border:0;background:none;border-radius:999px;padding:.5rem;font-weight:700;cursor:pointer;color:var(--muted)}
+.tab[aria-selected="true"]{background:var(--indigo);color:#fff}
+.field{margin-bottom:1rem}
+.field label{display:block;font-weight:600;margin-bottom:.3rem;font-size:.95rem}
+.field input,.field select,.field textarea{width:100%;padding:.65rem .8rem;border:1.5px solid var(--line);border-radius:10px;background:var(--paper);min-width:0}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--indigo);outline:none;box-shadow:0 0 0 3px rgba(245,184,61,.5)}
+.error{color:var(--red);font-size:.88rem;margin:.25rem 0 0;min-height:1.1em}
+.alert{background:rgba(201,55,63,.12);border:1px solid var(--red);color:var(--red);padding:.6rem .9rem;border-radius:10px;margin-bottom:1rem;font-size:.95rem}
+.alert.ok{background:rgba(30,158,106,.12);border-color:var(--green);color:var(--green)}
+.hint{background:var(--soft);border-radius:10px;padding:.7rem .9rem;font-size:.9rem;color:var(--muted);margin-top:1rem}
+.hint code{font-family:ui-monospace,Menlo,Consolas,monospace;color:var(--ink)}
+.hint button{margin-top:.5rem}
+
+/* app */
+.app{padding-block:1.6rem 3rem}
+.app-head{display:flex;justify-content:space-between;align-items:flex-end;gap:1rem;flex-wrap:wrap;margin-bottom:1rem}
+.app-head h1{font-size:clamp(1.5rem,3vw,2rem);margin:0}
+.app-head p{margin:0;color:var(--muted)}
+.tabs{display:flex;gap:.3rem;overflow-x:auto;border-bottom:1px solid var(--line);margin-bottom:1.4rem}
+.tabs button{border:0;background:none;padding:.7rem 1rem;font-weight:700;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap}
+.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--amber)}
+.badge{display:inline-block;background:var(--amber);color:var(--on-amber);border-radius:99px;font-size:.78rem;font-weight:700;padding:0 .5rem;margin-left:.3rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.2rem}
+.grid>*{min-width:0}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:1.3rem;min-width:0}
+.panel h2{font-size:1.15rem}
+.panel+.panel{margin-top:1.2rem}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1rem;margin-bottom:1.2rem}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:1rem 1.2rem}
+.stat b{display:block;font-family:var(--font-head);font-size:2rem;font-variant-numeric:tabular-nums}
+.stat span{color:var(--muted);font-size:.9rem}
+.list li{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:.7rem 0;border-top:1px solid var(--line)}
+.list li:first-child{border-top:0}
+.list .t{min-width:0}
+.list .t strong{display:block}
+.list .t small{color:var(--muted)}
+.pill{display:inline-block;font-size:.78rem;font-weight:700;padding:.1rem .6rem;border-radius:99px;background:var(--soft);color:var(--ink);white-space:nowrap}
+.pill.exam{background:rgba(201,55,63,.15);color:var(--red)}
+.pill.event{background:rgba(30,158,106,.15);color:var(--green)}
+.pill.holiday{background:rgba(245,184,61,.25)}
+.toolbar{display:flex;gap:.8rem;flex-wrap:wrap;margin-bottom:1rem}
+.toolbar input,.toolbar select{padding:.55rem .8rem;border:1.5px solid var(--line);border-radius:10px;background:var(--card);min-width:0;flex:1 1 180px}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.97rem}
+th,td{text-align:left;padding:.65rem .6rem;border-top:1px solid var(--line);white-space:nowrap}
+th{font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);border-top:0}
+td.num{font-variant-numeric:tabular-nums}
+.chk{display:flex;align-items:center;gap:.6rem}
+.chk input{width:1.2rem;height:1.2rem;accent-color:var(--green)}
+.toast{position:fixed;left:50%;bottom:calc(1.2rem + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--indigo-dark);color:#fff;padding:.7rem 1.2rem;border-radius:999px;box-shadow:0 8px 24px rgba(0,0,0,.3);z-index:20;max-width:calc(100% - 2rem);text-align:center}
+.empty{color:var(--muted);padding:1rem 0;margin:0}
+.demo-note{background:var(--soft);color:var(--muted);font-size:.88rem;padding:.5rem 0;text-align:center}
+
+@media (max-width:760px){
+  .hero-inner,.about-inner,.login-wrap{grid-template-columns:1fr;gap:2rem}
+  .preview{transform:none}
+  .hero{padding:2.5rem 0 3rem}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}.btn:hover{transform:none}}
+</style>
+
+<header class="navbar">
+  <div class="container nav-inner">
+    <button class="logo" data-go="home" aria-label="CampusConnect home">Campus<span>Connect</span></button>
+    <nav class="nav-links" id="navLinks" aria-label="Main"></nav>
+  </div>
+</header>
+<main id="view"></main>
+<footer class="footer">
+  <div class="container footer-inner">
+    <span>© 2026 CampusConnect</span>
+    <span>Everything You Need. One Campus Portal.</span>
+  </div>
+</footer>
+<div id="toast" class="toast" hidden></div>
+
+<script>
+(function(){
+  var $=function(s){return document.querySelector(s)};
+  function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+
+  /* ---------- sample data (same sample accounts as the project's README) ---------- */
+  /* Passwords are stored as SHA-256 hashes, never as plain text. */
+  var ACCOUNTS=[
+    {role:'student',ids:['21cs1042'],hash:'cf6b17676ab737ac710f3e231e26d3f6691329ffdbc4cb86f7a76d9684a33815',name:'Karthik Raman',code:'21CS1042',dept:'Computer Science',year:3,demo:true},
+    {role:'faculty',ids:['fac204'],hash:'fe26f7ffe7fa9b7d56b257455b9bd698eedf74299a2b3573353c8676bd1aa85e',name:'Dr. Meena Subramanian',code:'FAC204',dept:'Computer Science'},
+    {role:'admin',ids:['akvadmin@gmail.com'],hash:'739b623e71eac91acdf0979b3b6db6e4fd2c6ed9a6403f410d123a336305014c',name:'Administrator',code:'akvadmin@gmail.com',dept:'All departments'}
+  ];
+  function sha(pw){var b=new TextEncoder().encode('cc|'+pw);return crypto.subtle.digest('SHA-256',b).then(function(d){return [].map.call(new Uint8Array(d),function(x){return ('0'+x.toString(16)).slice(-2)}).join('')})}
+  function loadReg(){try{return JSON.parse(localStorage.getItem('cc_users')||'[]')}catch(e){return []}}
+  function saveReg(a){try{localStorage.setItem('cc_users',JSON.stringify(a))}catch(e){}}
+  function loadLog(){try{return JSON.parse(localStorage.getItem('cc_log')||'[]')}catch(e){return []}}
+  function saveLog(a){try{localStorage.setItem('cc_log',JSON.stringify(a.slice(0,200)))}catch(e){}}
+  function fmtDT(s){var d=new Date(s);if(isNaN(d))return '-';return d.toLocaleString('en-IN',{day:'numeric',month:'short',year:'numeric',hour:'numeric',minute:'2-digit'})}
+  var SUBJECTS=['Python','DBMS','Web Technology','Data Structures'];
+  var D={
+    att:{'Python':[38,42],'DBMS':[35,40],'Web Technology':[32,40],'Data Structures':[26,38]},
+    students:[
+      {code:'21CS1042',name:'Karthik Raman',year:3},{code:'21CS1017',name:'Divya Lakshmi',year:3},
+      {code:'21CS1058',name:'Mohammed Faizan',year:3},{code:'21CS1031',name:'Ananya Iyer',year:3},
+      {code:'21CS1066',name:'Sriram Venkat',year:3}
+    ],
+    materials:[
+      {id:1,title:'Python Functions and Modules',subject:'Python',type:'PDF',by:'Dr. Meena Subramanian',date:'2026-09-28'},
+      {id:2,title:'ER Diagrams and Normalization',subject:'DBMS',type:'PPT',by:'Prof. Anand Kumar',date:'2026-09-25'},
+      {id:3,title:'HTML Forms and Validation',subject:'Web Technology',type:'DOC',by:'Prof. Latha Rajan',date:'2026-09-22'},
+      {id:4,title:'Binary Trees: Traversals',subject:'Data Structures',type:'PDF',by:'Dr. Meena Subramanian',date:'2026-09-18'},
+      {id:5,title:'SQL Joins Cheat Sheet',subject:'DBMS',type:'PDF',by:'Prof. Anand Kumar',date:'2026-09-12'}
+    ],
+    events:[
+      {id:1,title:'Full Stack Workshop',cat:'Workshop',date:'2026-10-14 10:00',venue:'Seminar Hall A',reg:false},
+      {id:2,title:'Tech Symposium: Ignite 26',cat:'Symposium',date:'2026-10-22 09:30',venue:'Main Auditorium',reg:true},
+      {id:3,title:'Inter-department Cricket',cat:'Sports',date:'2026-10-29 08:00',venue:'College Ground',reg:false},
+      {id:4,title:'Cultural Night',cat:'Cultural',date:'2026-11-07 17:00',venue:'Open Air Theatre',reg:false}
+    ],
+    notices:[
+      {id:1,title:'Internal exam timetable is out',cat:'Exam',date:'2026-10-03',by:'Exam Cell'},
+      {id:2,title:'Holiday on 20 October for Deepavali',cat:'Holiday',date:'2026-10-02',by:'Principal Office'},
+      {id:3,title:'DBMS assignment 2 due 12 October',cat:'Assignment',date:'2026-09-30',by:'Prof. Anand Kumar'},
+      {id:4,title:'Library will stay open till 8 pm during exams',cat:'General',date:'2026-09-27',by:'Librarian'}
+    ],
+    assignments:[
+      {title:'DBMS Assignment 2: Normalization',subject:'DBMS',due:'2026-10-12'},
+      {title:'Python Mini Project Report',subject:'Python',due:'2026-10-16'},
+      {title:'Web Tech Lab Record',subject:'Web Technology',due:'2026-10-18'}
+    ],
+    pending:[],
+    users:[
+      {code:'21CS1042',name:'Karthik Raman',role:'Student',dept:'Computer Science'},
+      {code:'21CS1017',name:'Divya Lakshmi',role:'Student',dept:'Computer Science'},
+      {code:'FAC204',name:'Dr. Meena Subramanian',role:'Faculty',dept:'Computer Science'},
+      {code:'FAC118',name:'Prof. Anand Kumar',role:'Faculty',dept:'Information Technology'}
+    ],
+    unread:2
+  };
+
+  loadReg().forEach(function(u){D.users.push({code:u.code,name:u.name,role:u.role==='faculty'?'Faculty':'Student',dept:u.dept})});
+
+  /* ---------- state ---------- */
+  var S={view:'home',role:'student',user:null,tab:'dash',fails:{},q:'',subj:'',cat:'',evTab:'all',loginMsg:'',loginErr:'',tempPw:'',regRole:'student'};
+  var TABS={
+    student:[['dash','Dashboard'],['att','Attendance'],['mat','Materials'],['ev','Events'],['not','Notices']],
+    faculty:[['mark','Mark attendance'],['stud','Students'],['mat','Materials'],['ev','Events'],['not','Notices']],
+    admin:[['over','Overview'],['reg','Registrations'],['usr','Users']]
+  };
+
+  function toast(msg){var t=$('#toast');t.textContent=msg;t.hidden=false;clearTimeout(toast.h);toast.h=setTimeout(function(){t.hidden=true},2600)}
+  function pct(a){return a[1]?Math.round(a[0]/a[1]*1000)/10:0}
+  function cls(p){return p>=75?'':(p>=65?'low':'bad')}
+  function fmtDate(s){var d=new Date(s.replace(' ','T'));if(isNaN(d))return s;return d.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}
+  function bar(label,a){
+    if(!a[1])return '<li><div class="bar-label"><span>'+esc(label)+'</span><strong>No classes yet</strong></div><div class="bar"><i style="width:0"></i></div></li>';
+    var p=pct(a),short=p<75?Math.max(0,Math.ceil((0.75*a[1]-a[0])/0.25)):0;
+    return '<li><div class="bar-label"><span>'+esc(label)+'</span><strong>'+p+'%</strong></div><div class="bar"><i class="'+cls(p)+'" style="width:'+Math.min(p,100)+'%"></i></div>'+
+      '<div class="bar-note">'+a[0]+' of '+a[1]+' classes'+(short?'. Attend the next '+short+' in a row to reach 75%.':'')+'</div></li>';
+  }
+
+  /* ---------- navbar ---------- */
+  function renderNav(){
+    var h='';
+    if(S.user){
+      h+='<span class="who">'+esc(S.user.name)+' · '+esc(S.user.role)+'</span>';
+      h+='<button class="lnk" data-go="home">Home</button><button class="lnk" data-act="logout">Logout</button>';
+    }else{
+      h+='<button class="lnk" data-go="home">Home</button><button class="lnk" data-go="about">About</button><button class="lnk nav-login" data-go="login">Login</button>';
+    }
+    h+='<button class="theme-btn" data-act="theme" aria-label="Switch light or dark theme">Theme</button>';
+    $('#navLinks').innerHTML=h;
+  }
+
+  /* ---------- home ---------- */
+  function home(){
+    var a=D.att;
+    return '<section class="hero" id="top"><div class="container hero-inner"><div>'+
+      '<h1>Welcome to CampusConnect</h1><p class="tagline">Everything You Need. One Campus Portal.</p>'+
+      '<p class="sub">Your college life, organized in one place.</p>'+
+      '<div class="hero-buttons"><button class="btn btn-primary" data-login="student">Student Login</button><button class="btn btn-outline" data-login="faculty">Faculty Login</button></div></div>'+
+      '<aside class="preview" aria-label="Sample attendance preview"><h2>Your attendance</h2><ul class="bars">'+
+      ['Python','DBMS','Web Technology'].map(function(s){return bar(s,a[s])}).join('')+
+      '</ul><p class="pinned">Internal exam timetable is out. Check Notices.</p></aside></div></section>'+
+      '<section class="features"><div class="container"><h2 class="section-title">What you can do here</h2><div class="feature-grid">'+
+      [['At','Attendance','See your attendance for every subject. Faculty mark it, and your percentage updates by itself.'],
+       ['Md','Materials','Download PDF, DOC and PPT notes uploaded by your faculty, sorted by subject.'],
+       ['Ev','Events','Find workshops, seminars, symposiums and cultural events, and register in one click.'],
+       ['Nt','Notices','Exam dates, holidays, assignment deadlines and circulars, all in one list.']].map(function(f){
+        return '<article class="feature"><div class="glyph" aria-hidden="true">'+f[0]+'</div><h3>'+f[1]+'</h3><p>'+f[2]+'</p></article>'}).join('')+
+      '</div></div></section>'+
+      '<section class="about" id="about"><div class="container about-inner"><div><h2 class="section-title">About CampusConnect</h2>'+
+      '<p>CampusConnect brings the daily needs of a college into one website, so nobody has to hunt through WhatsApp groups and paper notice boards.</p>'+
+      '<button class="btn btn-primary" data-login="student">Student Login</button></div>'+
+      '<ul class="roles"><li><strong>Students</strong> check attendance, download notes, register for events and read notices.</li>'+
+      '<li><strong>Faculty</strong> upload notes, post notices, create events and mark attendance.</li>'+
+      '<li><strong>Admins</strong> manage students, faculty, departments and subjects.</li></ul></div></section>';
+  }
+
+  /* ---------- login ---------- */
+  function login(){
+    var r=S.role;
+    var titles={student:'Welcome back, student',faculty:'Welcome back, faculty',admin:'Admin sign in'};
+    var sub={student:'Check your attendance, download notes and see what is happening on campus.',faculty:'Mark attendance, upload notes, post notices and create events.',admin:'Manage students and faculty.'};
+    var lab={student:'Register number or email',faculty:'Faculty ID or email',admin:'Admin email'};
+    return '<div class="container login-wrap"><section><h1>'+titles[r]+'</h1><p>'+sub[r]+'</p>'+
+      '<ul class="side-list"><li>Attendance for every subject</li><li>Notes from your faculty</li><li>Events and registrations</li></ul></section>'+
+      '<section class="login-card"><div class="role-tabs" role="tablist" aria-label="Login type">'+
+      ['student','faculty','admin'].map(function(x){return '<button type="button" role="tab" class="tab" data-role="'+x+'" aria-selected="'+(x===r)+'">'+x[0].toUpperCase()+x.slice(1)+'</button>'}).join('')+
+      '</div><h2>'+r[0].toUpperCase()+r.slice(1)+' Login</h2>'+
+      (S.loginErr?'<p class="alert" role="alert">'+esc(S.loginErr)+'</p>':'')+(S.loginMsg?'<p class="alert ok" role="status">'+esc(S.loginMsg)+'</p>':'')+
+      '<form id="loginForm" novalidate><div class="field"><label for="userId">'+lab[r]+'</label><input id="userId" name="user_id" autocomplete="username"><p class="error" id="e1"></p></div>'+
+      '<div class="field"><label for="password">Password</label><input id="password" type="password" name="password" autocomplete="current-password"><p class="error" id="e2"></p></div>'+
+      '<button type="submit" class="btn btn-primary btn-block">Login</button></form>'+
+      (r==='student'?'<p style="margin:1rem 0 0">New student? <a href="#" data-newreg="student">Create an account</a></p>':'')+(r==='faculty'?'<p style="margin:1rem 0 0">New faculty? <a href="#" data-newreg="faculty">Create an account</a></p>':'')+'</section></div>';
+  }
+  function register(){
+    var fac=S.regRole==='faculty',R=fac?'faculty':'student';
+    var depts=['Computer Science','Information Technology','Electronics and Communication','Mechanical Engineering'];
+    var f=function(id,l,t,ex){return '<div class="field"><label for="'+id+'">'+l+'</label><input id="'+id+'" type="'+(t||'text')+'" '+(ex||'')+'><p class="error" id="e_'+id+'"></p></div>'};
+    return '<div class="container login-wrap"><section><h1>Create your '+R+' account</h1><p>Register once, then log in with your '+(fac?'faculty ID':'register number')+' or email.</p></section>'+
+      '<section class="login-card"><h2>'+(fac?'Faculty':'Student')+' registration</h2>'+(S.loginErr?'<p class="alert" role="alert">'+esc(S.loginErr)+'</p>':'')+
+      '<form id="regForm" novalidate>'+f('rn','Full name','text','autocomplete="name"')+f('rc',fac?'Faculty ID':'Register number','text','placeholder="'+(fac?'e.g. FAC301':'e.g. 24CS1001')+'"')+f('re','Email','email','autocomplete="email"')+
+      '<div class="field"><label for="rd">Department</label><select id="rd">'+depts.map(function(d){return '<option>'+d+'</option>'}).join('')+'</select></div>'+
+      (fac?'':'<div class="field"><label for="ry">Year</label><select id="ry"><option>1</option><option>2</option><option>3</option><option>4</option></select></div>')+
+      f('rp','Password (at least 8 characters)','password','autocomplete="new-password"')+f('rp2','Confirm password','password','autocomplete="new-password"')+
+      '<button type="submit" class="btn btn-primary btn-block">Register</button></form>'+
+      '<p style="margin:1rem 0 0">Already registered? <a href="#" data-login="'+R+'">Log in</a></p></section></div>';
+  }
+
+  /* ---------- app shell ---------- */
+  function shell(body){
+    var u=S.user,tabs=TABS[u.role];
+    return '<div class="container app"><div class="app-head"><div><h1>'+esc(headTitle())+'</h1><p>'+esc(headSub())+'</p></div></div>'+
+      '<div class="tabs" role="tablist">'+tabs.map(function(t){
+        var extra=(u.role==='student'&&t[0]==='not'&&D.unread)?'<span class="badge">'+D.unread+'</span>':'';
+        return '<button role="tab" data-tab="'+t[0]+'" aria-selected="'+(S.tab===t[0])+'">'+t[1]+extra+'</button>'}).join('')+'</div>'+body+'</div>';
+  }
+  function headTitle(){var u=S.user;return u.role==='student'?'Hello, '+u.name.split(' ')[0]:u.role==='faculty'?'Hello, '+u.name.replace('Dr. ','').split(' ')[0]:'Admin dashboard'}
+  function headSub(){var u=S.user;return u.role==='student'?u.code+' · '+u.dept+' · Year '+u.year:u.role==='faculty'?u.code+' · '+u.dept:'Signed in as '+u.code}
+
+  /* student */
+  function sDash(){
+    var rows=SUBJECTS.map(function(s){return bar(s,S.user.att[s])}).join('');
+    return '<div class="grid"><section class="panel"><h2>Attendance</h2><ul class="bars">'+rows+'</ul></section>'+
+      '<section class="panel"><h2>Latest notices</h2>'+noticeList(D.notices.slice(0,4))+'</section>'+
+      '<section class="panel"><h2>Assignments due</h2><ul class="list">'+D.assignments.map(function(a){return '<li><div class="t"><strong>'+esc(a.title)+'</strong><small>'+esc(a.subject)+'</small></div><span class="pill">'+fmtDate(a.due)+'</span></li>'}).join('')+'</ul></section>'+
+      '<section class="panel"><h2>Upcoming events</h2>'+eventList(D.events.slice(0,3),false)+'</section>'+
+      '<section class="panel"><h2>New notes</h2>'+matList(D.materials.slice(0,3))+'</section></div>';
+  }
+  function sAtt(){
+    var tot=[0,0];SUBJECTS.forEach(function(s){tot[0]+=S.user.att[s][0];tot[1]+=S.user.att[s][1]});
+    return '<section class="panel"><h2>Overall '+pct(tot)+'%</h2><p style="color:var(--muted)">The line on each bar marks the 75% minimum most colleges need for exam eligibility.</p><ul class="bars">'+
+      SUBJECTS.map(function(s){return bar(s,S.user.att[s])}).join('')+'</ul></section>';
+  }
+  function matList(list){
+    if(!list.length)return '<p class="empty">No materials match.</p>';
+    return '<ul class="list">'+list.map(function(m){return '<li><div class="t"><strong>'+esc(m.title)+'</strong><small>'+esc(m.subject)+' · '+esc(m.by)+' · '+fmtDate(m.date)+'</small></div><span class="pill">'+m.type+'</span></li>'}).join('')+'</ul>';
+  }
+  function sMat(faculty){
+    var q=S.q.toLowerCase(),list=D.materials.filter(function(m){return (!S.subj||m.subject===S.subj)&&(!q||m.title.toLowerCase().indexOf(q)>-1)});
+    return '<section class="panel"><div class="toolbar"><input id="q" type="search" placeholder="Search materials" value="'+esc(S.q)+'" aria-label="Search materials"><select id="subj" aria-label="Filter by subject"><option value="">All subjects</option>'+
+      SUBJECTS.map(function(s){return '<option'+(S.subj===s?' selected':'')+'>'+s+'</option>'}).join('')+'</select></div>'+matList(list)+'</section>'+
+      (faculty?'<section class="panel"><h2>Upload material</h2><form id="matForm" class="grid"><div class="field"><label for="mt">Title</label><input id="mt" required></div><div class="field"><label for="ms">Subject</label><select id="ms">'+SUBJECTS.map(function(s){return '<option>'+s+'</option>'}).join('')+'</select></div><div class="field"><label for="mty">File type</label><select id="mty"><option>PDF</option><option>DOC</option><option>PPT</option></select></div><div class="field" style="align-self:end"><button class="btn btn-primary" type="submit">Upload</button></div></form></section>':'');
+  }
+  function eventList(list,actions){
+    if(!list.length)return '<p class="empty">Nothing here yet.</p>';
+    return '<ul class="list">'+list.map(function(e){
+      return '<li><div class="t"><strong>'+esc(e.title)+'</strong><small>'+esc(e.cat)+' · '+fmtDate(e.date)+' · '+esc(e.venue)+'</small></div>'+
+        (actions?(e.reg?'<button class="btn btn-ghost btn-small" data-reg="'+e.id+'">Registered · Cancel</button>':'<button class="btn btn-primary btn-small" data-reg="'+e.id+'">Register</button>'):(e.reg?'<span class="pill event">Registered</span>':''))+'</li>'}).join('')+'</ul>';
+  }
+  function sEv(){
+    var list=S.evTab==='mine'?D.events.filter(function(e){return e.reg}):D.events;
+    return '<section class="panel"><div class="toolbar"><button class="btn btn-small '+(S.evTab==='all'?'btn-primary':'btn-ghost')+'" data-evtab="all">All events</button><button class="btn btn-small '+(S.evTab==='mine'?'btn-primary':'btn-ghost')+'" data-evtab="mine">My events</button></div>'+eventList(list,true)+'</section>';
+  }
+  function noticeList(list){
+    if(!list.length)return '<p class="empty">No notices.</p>';
+    return '<ul class="list">'+list.map(function(n){return '<li><div class="t"><strong>'+esc(n.title)+'</strong><small>'+esc(n.by)+' · '+fmtDate(n.date)+'</small></div><span class="pill '+n.cat.toLowerCase()+'">'+esc(n.cat)+'</span></li>'}).join('')+'</ul>';
+  }
+  function sNot(){
+    var list=D.notices.filter(function(n){return !S.cat||n.cat===S.cat});
+    return '<section class="panel"><div class="toolbar"><select id="cat" aria-label="Filter by category"><option value="">All categories</option>'+
+      ['Exam','Holiday','Assignment','General','Event'].map(function(c){return '<option'+(S.cat===c?' selected':'')+'>'+c+'</option>'}).join('')+'</select></div>'+noticeList(list)+'</section>';
+  }
+
+  /* faculty */
+  function fMark(){
+    var today=new Date().toISOString().slice(0,10);
+    return '<section class="panel"><h2>Mark attendance</h2><form id="markForm"><div class="toolbar"><select id="msub" aria-label="Subject">'+SUBJECTS.map(function(s){return '<option>'+s+'</option>'}).join('')+'</select><input id="mdate" type="date" value="'+today+'" aria-label="Date"></div>'+
+      '<div class="table-wrap"><table><thead><tr><th>Register no.</th><th>Name</th><th>Present</th></tr></thead><tbody>'+
+      D.students.map(function(s,i){return '<tr><td class="num">'+s.code+'</td><td>'+esc(s.name)+'</td><td><label class="chk"><input type="checkbox" class="pres" data-i="'+i+'" checked aria-label="Present: '+esc(s.name)+'"></label></td></tr>'}).join('')+
+      '</tbody></table></div><p style="margin:1rem 0 0"><button class="btn btn-primary" type="submit">Save attendance</button></p></form>'+
+      '<p class="hint">Saving updates Karthik Raman\'s percentage. Switch to a student login to see it change.</p></section>';
+  }
+  function fStud(){
+    return '<section class="panel"><h2>Students in your department</h2><div class="table-wrap"><table><thead><tr><th>Register no.</th><th>Name</th><th>Year</th></tr></thead><tbody>'+
+      D.students.map(function(s){return '<tr><td class="num">'+s.code+'</td><td>'+esc(s.name)+'</td><td>'+s.year+'</td></tr>'}).join('')+'</tbody></table></div></section>';
+  }
+  function fEv(){
+    return '<section class="panel"><h2>Create event</h2><form id="evForm" class="grid"><div class="field"><label for="et">Title</label><input id="et" required></div><div class="field"><label for="ec">Category</label><select id="ec"><option>Workshop</option><option>Seminar</option><option>Symposium</option><option>Cultural</option><option>Sports</option></select></div>'+
+      '<div class="field"><label for="ed">Date</label><input id="ed" type="datetime-local" required></div><div class="field"><label for="ev">Venue</label><input id="ev" required></div><div class="field"><button class="btn btn-primary" type="submit">Create event</button></div></form></section>'+
+      '<section class="panel"><h2>All events</h2>'+eventList(D.events,false)+'</section>';
+  }
+  function fNot(){
+    return '<section class="panel"><h2>Post notice</h2><form id="notForm" class="grid"><div class="field"><label for="nt">Title</label><input id="nt" required></div><div class="field"><label for="nc">Category</label><select id="nc"><option>General</option><option>Exam</option><option>Holiday</option><option>Assignment</option><option>Event</option></select></div><div class="field"><button class="btn btn-primary" type="submit">Post notice</button></div></form></section>'+
+      '<section class="panel"><h2>Posted notices</h2>'+noticeList(D.notices)+'</section>';
+  }
+
+  /* admin */
+  function aOver(){
+    return '<div class="stats"><div class="stat"><b>'+125+'</b><span>Students</span></div><div class="stat"><b>'+D.users.filter(function(u){return u.role==='Faculty'}).length+'</b><span>Faculty</span></div><div class="stat"><b>4</b><span>Departments</span></div></div>'+
+      '<div class="grid"><section class="panel"><h2>Departments</h2><ul class="list">'+['Computer Science','Information Technology','Electronics and Communication','Mechanical Engineering'].map(function(d){return '<li><span>'+d+'</span></li>'}).join('')+'</ul></section>'+
+      '<section class="panel"><h2>Recent notices</h2>'+noticeList(D.notices.slice(0,3))+'</section></div>';
+  }
+  function aReg(){
+    var reg=loadReg(),log=loadLog();
+    var st=reg.filter(function(u){return u.role!=='faculty'}).length,fa=reg.length-st;
+    var rows=reg.slice().reverse().map(function(u){
+      return '<tr><td class="num">'+esc(u.code)+'</td><td>'+esc(u.name)+'</td><td>'+(u.role==='faculty'?'Faculty':'Student')+'</td><td>'+esc(u.dept)+'</td><td>'+esc(u.email)+'</td><td>'+fmtDT(u.created)+'</td><td>'+(u.lastLogin?fmtDT(u.lastLogin):'Never')+'</td><td class="num">'+(u.logins||0)+'</td></tr>'}).join('');
+    var lrows=log.slice(0,30).map(function(l){
+      return '<tr><td>'+fmtDT(l.time)+'</td><td class="num">'+esc(l.code)+'</td><td>'+esc(l.name)+'</td><td>'+esc(l.role)+'</td></tr>'}).join('');
+    return '<div class="stats"><div class="stat"><b>'+fa+'</b><span>Faculty registered</span></div><div class="stat"><b>'+st+'</b><span>Students registered</span></div><div class="stat"><b>'+log.length+'</b><span>Logins recorded</span></div></div>'+
+      '<section class="panel"><h2>Registered accounts</h2>'+(rows?'<div class="table-wrap"><table><thead><tr><th>ID</th><th>Name</th><th>Role</th><th>Department</th><th>Email</th><th>Registered</th><th>Last login</th><th>Logins</th></tr></thead><tbody>'+rows+'</tbody></table></div>':'<p>No one has registered yet.</p>')+'</section>'+
+      '<section class="panel"><h2>Recent login activity</h2>'+(lrows?'<div class="table-wrap"><table><thead><tr><th>Time</th><th>ID</th><th>Name</th><th>Role</th></tr></thead><tbody>'+lrows+'</tbody></table></div>':'<p>No logins recorded yet.</p>')+'</section>';
+  }
+  function aUsr(){
+    return '<section class="panel"><h2>Create student</h2><form id="usrForm" class="grid"><div class="field"><label for="un">Full name</label><input id="un" required></div><div class="field"><label for="uc">Register no.</label><input id="uc" placeholder="e.g. 24CS1001" required></div><div class="field"><button class="btn btn-primary" type="submit">Create</button></div></form>'+
+      (S.tempPw?'<p class="alert ok" role="status">Temporary password: <strong>'+esc(S.tempPw)+'</strong>. It is shown once. The student must change it at first login.</p>':'')+'</section>'+
+      '<section class="panel"><h2>All users</h2><div class="table-wrap"><table><thead><tr><th>ID</th><th>Name</th><th>Role</th><th>Department</th></tr></thead><tbody>'+
+      D.users.map(function(u){return '<tr><td class="num">'+u.code+'</td><td>'+esc(u.name)+'</td><td>'+u.role+'</td><td>'+esc(u.dept)+'</td></tr>'}).join('')+'</tbody></table></div></section>';
+  }
+  var PAGES={
+    student:{dash:sDash,att:sAtt,mat:function(){return sMat(false)},ev:sEv,not:sNot},
+    faculty:{mark:fMark,stud:fStud,mat:function(){return sMat(true)},ev:fEv,not:fNot},
+    admin:{over:aOver,reg:aReg,usr:aUsr}
+  };
+
+  /* ---------- render ---------- */
+  function render(keepFocus){
+    renderNav();
+    var v=$('#view');
+    if(S.view==='home')v.innerHTML=home();
+    else if(S.view==='login')v.innerHTML=login();
+    else if(S.view==='register')v.innerHTML=register();
+    else v.innerHTML=shell(PAGES[S.user.role][S.tab]());
+  }
+  function go(view){
+    S.view=view;S.loginErr='';
+    if(view==='about'){S.view='home';render();var a=$('#about');if(a)a.scrollIntoView();return}
+    if(view==='home'&&S.user){S.view='app'}
+    render();window.scrollTo(0,0);
+  }
+
+  /* ---------- events ---------- */
+  document.addEventListener('click',function(e){
+    var t=e.target.closest('[data-go],[data-login],[data-role],[data-act],[data-tab],[data-reg],[data-evtab],[data-newreg]');
+    if(!t)return;
+    var d=t.dataset;if(t.tagName==='A')e.preventDefault();
+    if(d.newreg){S.regRole=d.newreg;S.loginErr='';S.view='register';render();window.scrollTo(0,0)}
+    else if(d.go){if(d.go==='register')S.regRole='student';go(d.go)}
+    else if(d.login){S.role=d.login;S.loginMsg='';S.view='login';render();window.scrollTo(0,0)}
+    else if(d.role){S.role=d.role;S.loginErr='';render()}
+    else if(d.tab){S.tab=d.tab;S.q='';S.subj='';S.cat='';render();if(S.user.role==='student'&&d.tab==='not'&&D.unread){D.unread=0;setTimeout(render,0)}}
+    else if(d.evtab){S.evTab=d.evtab;render()}
+    else if(d.reg){var ev=D.events.filter(function(x){return x.id==d.reg})[0];ev.reg=!ev.reg;render();toast(ev.reg?'Registered for '+ev.title:'Registration cancelled')}
+    else if(d.act==='logout'){S.user=null;S.view='login';S.role='student';S.loginMsg='You have been logged out.';S.tempPw='';render();window.scrollTo(0,0)}
+    else if(d.act==='theme'){
+      var root=document.documentElement,dark=root.getAttribute('data-theme')==='dark'||(!root.getAttribute('data-theme')&&matchMedia('(prefers-color-scheme: dark)').matches);
+      root.setAttribute('data-theme',dark?'light':'dark');
+    }
+  });
+
+  document.addEventListener('input',function(e){
+    if(e.target.id==='q'){S.q=e.target.value;var pos=e.target.selectionStart;render();var q=$('#q');q.focus();q.setSelectionRange(pos,pos)}
+  });
+  document.addEventListener('change',function(e){
+    if(e.target.id==='subj'){S.subj=e.target.value;render()}
+    if(e.target.id==='cat'){S.cat=e.target.value;render()}
+  });
+
+  var fails={};
+  function field(id,msg){var el=$('#'+id);if(el){el.textContent=msg||''}return !msg}
+  function doLogin(){
+    var id=$('#userId').value.trim().toLowerCase(),pw=$('#password').value,ok=true;
+    $('#e1').textContent='';$('#e2').textContent='';
+    if(id.length<3){$('#e1').textContent='Enter your register number or email.';ok=false}
+    if(!pw){$('#e2').textContent='Enter your password.';ok=false}
+    if(!ok)return;
+    var key=S.role+':'+id;
+    if((fails[key]||0)>=5){S.loginErr='Too many wrong attempts. Try again in 15 minutes.';S.loginMsg='';render();return}
+    sha(pw).then(function(hash){
+      var all=ACCOUNTS.concat(loadReg().map(function(u){return {role:u.role==='faculty'?'faculty':'student',ids:[u.code.toLowerCase(),u.email.toLowerCase()],hash:u.hash,name:u.name,code:u.code,dept:u.dept,year:u.year}}));
+      var m=all.filter(function(a){return a.role===S.role&&a.ids.indexOf(id)>-1&&a.hash===hash})[0];
+      if(m){
+        fails[key]=0;
+        if(m.role!=='admin'){
+          var now=new Date().toISOString(),rg=loadReg();
+          rg.forEach(function(u){if(u.code===m.code&&(u.role==='faculty'?'faculty':'student')===m.role){u.lastLogin=now;u.logins=(u.logins||0)+1}});
+          saveReg(rg);
+          var lg=loadLog();lg.unshift({time:now,code:m.code,name:m.name,role:m.role[0].toUpperCase()+m.role.slice(1)});saveLog(lg);
+        }
+        var att={};SUBJECTS.forEach(function(x){att[x]=m.demo?D.att[x]:[0,0]});
+        S.user={role:m.role,name:m.name,code:m.code,dept:m.dept,year:m.year,att:att};
+        S.tab=TABS[m.role][0][0];S.view='app';S.loginMsg='';S.loginErr='';S.q='';render();window.scrollTo(0,0);
+      }else{
+        fails[key]=(fails[key]||0)+1;S.loginErr='Wrong ID or password.'+(fails[key]>=3?' '+(5-fails[key])+' tries left before this ID is locked.':'');S.loginMsg='';render();
+      }
+    });
+  }
+  function doRegister(){
+    var fac=S.regRole==='faculty',n=$('#rn').value.trim(),c=$('#rc').value.trim().toUpperCase(),em=$('#re').value.trim().toLowerCase(),p1=$('#rp').value,p2=$('#rp2').value;
+    var ok=true;
+    ok=field('e_rn',n.length<3?'Enter your full name.':'')&&ok;
+    ok=field('e_rc',!/^[A-Z0-9]{5,15}$/.test(c)?(fac?'Faculty ID: ':'')+'use letters and digits only, 5 to 15 characters.':'')&&ok;
+    ok=field('e_re',!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)?'Enter a valid email address.':'')&&ok;
+    ok=field('e_rp',p1.length<8?'Password must be at least 8 characters.':'')&&ok;
+    ok=field('e_rp2',p1!==p2?'Passwords do not match.':'')&&ok;
+    if(!ok)return;
+    var reg=loadReg();
+    var taken=reg.some(function(u){return u.code===c||u.email===em})||ACCOUNTS.some(function(a){return a.ids.indexOf(c.toLowerCase())>-1||a.ids.indexOf(em)>-1});
+    if(taken){S.loginErr='That '+(fac?'faculty ID':'register number')+' or email is already registered.';render();return}
+    sha(p1).then(function(hash){
+      var u={role:fac?'faculty':'student',code:c,email:em,name:n,dept:$('#rd').value,hash:hash,created:new Date().toISOString(),lastLogin:null,logins:0};
+      if(!fac)u.year=+$('#ry').value;
+      reg.push(u);saveReg(reg);
+      D.users.push({code:c,name:n,role:fac?'Faculty':'Student',dept:u.dept});
+      S.role=fac?'faculty':'student';S.view='login';S.loginErr='';S.loginMsg='Account created. Log in with your '+(fac?'faculty ID':'register number')+' or email and your password.';render();window.scrollTo(0,0);
+    });
+  }
+  document.addEventListener('submit',function(e){
+    e.preventDefault();var f=e.target.id,u=S.user;
+    if(f==='loginForm'){doLogin();return}
+    if(f==='regForm'){doRegister();return}
+    if(0){}
+    else if(f==='markForm'){
+      var sub=$('#msub').value,boxes=document.querySelectorAll('.pres'),karthik=boxes[0].checked;
+      D.att[sub][1]+=1;if(karthik)D.att[sub][0]+=1;
+      var absent=[].filter.call(boxes,function(b){return !b.checked}).length;
+      toast('Saved '+sub+': '+(boxes.length-absent)+' present, '+absent+' absent');
+    }
+    else if(f==='matForm'){
+      var t=$('#mt').value.trim();if(!t)return;
+      D.materials.unshift({id:Date.now(),title:t,subject:$('#ms').value,type:$('#mty').value,by:u.name,date:new Date().toISOString().slice(0,10)});
+      D.unread++;render();toast('Material uploaded');
+    }
+    else if(f==='evForm'){
+      D.events.push({id:Date.now(),title:$('#et').value.trim(),cat:$('#ec').value,date:$('#ed').value,venue:$('#ev').value.trim(),reg:false});
+      D.unread++;render();toast('Event created');
+    }
+    else if(f==='notForm'){
+      var nt=$('#nt').value.trim();if(!nt)return;
+      D.notices.unshift({id:Date.now(),title:nt,cat:$('#nc').value,date:new Date().toISOString().slice(0,10),by:u.name});
+      D.unread++;render();toast('Notice posted. Students will see it.');
+    }
+    else if(f==='usrForm'){
+      var n=$('#un').value.trim(),c=$('#uc').value.trim().toUpperCase();if(!n||!c)return;
+      D.users.push({code:c,name:n,role:'Student',dept:'Computer Science'});
+      S.tempPw='CC-'+Math.random().toString(36).slice(2,8).toUpperCase();render();toast('Student created');
+    }
+  });
+
+  render();
+})();
+</script>
+
+</body></html>
